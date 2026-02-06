@@ -6,6 +6,11 @@ export function createUI(world) {
   gui.add(world.size, "width", 8, 128, 1).name("Largeur");
   gui.add(world.size, "height", 8, 64, 1).name("Hauteur");
 
+  const terrainFolder = gui.addFolder("Terrain");
+  terrainFolder.add(world.params.terrain, "scale", 10, 100).name("Échelle");
+  terrainFolder.add(world.params.terrain, "magnitude", 0, 1).name("Magnitude");
+  terrainFolder.add(world.params.terrain, "offset", 0, 1).name("Décallage");
+
   gui.onChange(() => {
     world.generate();
   });
