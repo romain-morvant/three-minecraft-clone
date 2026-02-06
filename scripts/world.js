@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { SimplexNoise } from "three/examples/jsm/math/SimplexNoise.js";
 
 const geometry = new THREE.BoxGeometry();
 const material = new THREE.MeshLambertMaterial({ color: 0x00d000 });
@@ -12,7 +13,13 @@ export class World extends THREE.Group {
    */
   data = [];
 
-  threshold = 0.5;
+  params = {
+    terrain: {
+      scale: 30,
+      magnitude: 0.5,
+      offset: 0.2,
+    },
+  };
 
   constructor(size = { width: 64, height: 32 }) {
     super();
@@ -28,9 +35,9 @@ export class World extends THREE.Group {
   }
 
   /**
-   * Génère les données du terrain du monde
+   * Initialiser les données du terrain du monde
    */
-  generateTerrain() {
+  initializeTerrain() {
     this.data = [];
     for (let x = 0; x < this.size.width; x++) {
       const slice = [];
@@ -38,13 +45,35 @@ export class World extends THREE.Group {
         const row = [];
         for (let z = 0; z < this.size.width; z++) {
           row.push({
-            id: Math.random() > this.threshold ? 1 : 0,
+            id: 0,
             instanceId: null,
           });
         }
         slice.push(row);
       }
       this.data.push(slice);
+    }
+  }
+
+  generateTerrain() {
+    const simplex = new SimplexNoise();
+    for (let x = 0; x < this.size.width; x++) {
+      for (let z = 0; z < this.size.width; z++) {
+        const value = simplex.noise(
+          x / this.params.terrain.scale,
+          z / this.params.terrain.scale,
+        );
+
+        const scaledNoise =
+          this.params.terrain.offset + this.params.terrain.magnitude * value;
+
+        let height = Math.floor(this.size.height * scaledNoise);
+        height = Math.max(0, Math.min(height, this.size.height - 1));
+
+        for (let y = 0; y <= height; y++) {
+          this.setBlockId(x, y, z, 1);
+        }
+      }
     }
   }
 
