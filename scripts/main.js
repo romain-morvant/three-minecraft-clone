@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { World } from "./world";
 
 // Mise en place du renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -21,6 +22,9 @@ controls.update();
 
 // Création de la scène
 const scene = new THREE.Scene();
+const world = new World();
+world.generate();
+scene.add(world);
 
 // Éclairage
 function setupLights() {
@@ -50,5 +54,4 @@ window.addEventListener("resize", () => {
 });
 
 setupLights();
-setupWorld(32);
 animate();
